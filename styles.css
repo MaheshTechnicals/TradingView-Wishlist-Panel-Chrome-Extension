@@ -1,0 +1,389 @@
+/* TradingView Wishlist Panel - Dark Gradient Theme */
+
+/* Panel Container */
+.tv-wishlist-panel {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  width: 280px;
+  max-height: calc(100vh - 100px);
+  background: linear-gradient(135deg, #1a1d29 0%, #0d0f16 100%);
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  z-index: 999999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  overflow: visible;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+  animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(320px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.tv-wishlist-panel:hover {
+  box-shadow: 
+    0 25px 70px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Header */
+.tv-wishlist-header {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(88, 86, 214, 0.15) 0%, rgba(131, 58, 180, 0.15) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+
+.tv-wishlist-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.tv-wishlist-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.tv-wishlist-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #8b8b9e;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Collapse Button */
+.tv-wishlist-collapse-btn {
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(88, 86, 214, 0.25) 0%, rgba(131, 58, 180, 0.25) 100%);
+  border: 1px solid rgba(88, 86, 214, 0.4);
+  border-radius: 12px 0 0 12px;
+  border-right: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  outline: none;
+}
+
+.tv-wishlist-collapse-btn:hover {
+  left: -38px;
+  background: linear-gradient(135deg, rgba(88, 86, 214, 0.4) 0%, rgba(131, 58, 180, 0.4) 100%);
+  box-shadow: 0 4px 16px rgba(88, 86, 214, 0.3);
+}
+
+.tv-collapse-icon {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s;
+}
+
+.tv-wishlist-collapse-btn:hover .tv-collapse-icon {
+  transform: scale(1.1);
+}
+
+/* Collapsed State */
+.tv-wishlist-panel.collapsed {
+  transform: translateX(280px);
+  width: 280px;
+}
+
+.tv-wishlist-panel.collapsed .tv-wishlist-collapse-btn {
+  left: -40px;
+}
+
+.tv-wishlist-panel.collapsed .tv-wishlist-header,
+.tv-wishlist-panel.collapsed .tv-wishlist-list {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* List Container */
+.tv-wishlist-list {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.tv-wishlist-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tv-wishlist-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tv-wishlist-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.tv-wishlist-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Stock Items */
+.tv-wishlist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  margin: 6px 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.tv-wishlist-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(88, 86, 214, 0.1) 0%, rgba(131, 58, 180, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.tv-wishlist-item:hover::before {
+  opacity: 1;
+}
+
+.tv-wishlist-item:hover {
+  transform: translateX(-4px);
+  border-color: rgba(88, 86, 214, 0.4);
+  box-shadow: 
+    0 8px 24px rgba(88, 86, 214, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Active Item */
+.tv-wishlist-item.active {
+  background: linear-gradient(135deg, rgba(88, 86, 214, 0.25) 0%, rgba(131, 58, 180, 0.25) 100%);
+  border-color: rgba(88, 86, 214, 0.6);
+  box-shadow: 
+    0 8px 32px rgba(88, 86, 214, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateX(-4px);
+}
+
+.tv-wishlist-item.active::before {
+  opacity: 1;
+}
+
+.tv-wishlist-item.active .tv-wishlist-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: #fff;
+}
+
+/* Item Content */
+.tv-wishlist-item-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8b8b9e;
+  position: relative;
+  z-index: 1;
+  transition: all 0.25s;
+}
+
+.tv-wishlist-item:hover .tv-wishlist-item-number {
+  background: rgba(88, 86, 214, 0.3);
+  color: #a0a0ff;
+}
+
+.tv-wishlist-item.active .tv-wishlist-item-number {
+  background: linear-gradient(135deg, rgba(88, 86, 214, 0.6) 0%, rgba(131, 58, 180, 0.6) 100%);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.tv-wishlist-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.tv-wishlist-symbol {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tv-wishlist-exchange {
+  font-size: 11px;
+  color: #8b8b9e;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tv-wishlist-item:hover .tv-wishlist-symbol {
+  color: #e0e0ff;
+}
+
+.tv-wishlist-item.active .tv-wishlist-symbol {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Arrow Indicator */
+.tv-wishlist-arrow {
+  font-size: 18px;
+  color: #5856d6;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.tv-wishlist-item:hover .tv-wishlist-arrow {
+  opacity: 0.6;
+  transform: translateX(0);
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .tv-wishlist-panel {
+    width: 240px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .tv-wishlist-panel {
+    width: 220px;
+    right: 10px;
+    top: 50px;
+  }
+
+  .tv-wishlist-header h3 {
+    font-size: 16px;
+  }
+
+  .tv-wishlist-item {
+    padding: 12px 14px;
+  }
+
+  .tv-wishlist-symbol {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tv-wishlist-panel {
+    width: 200px;
+    right: 8px;
+    top: 45px;
+    max-height: calc(100vh - 80px);
+  }
+
+  .tv-wishlist-header {
+    padding: 16px;
+  }
+
+  .tv-wishlist-header h3 {
+    font-size: 15px;
+  }
+
+  .tv-wishlist-item {
+    padding: 10px 12px;
+  }
+
+  .tv-wishlist-symbol {
+    font-size: 13px;
+  }
+
+  .tv-wishlist-exchange {
+    font-size: 10px;
+  }
+}
+
+/* Accessibility */
+.tv-wishlist-item:focus {
+  outline: 2px solid rgba(88, 86, 214, 0.8);
+  outline-offset: 2px;
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* High Performance GPU Acceleration */
+.tv-wishlist-panel,
+.tv-wishlist-item,
+.tv-wishlist-arrow {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
