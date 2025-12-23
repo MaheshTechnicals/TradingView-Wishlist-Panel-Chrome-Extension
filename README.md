@@ -1,0 +1,1 @@
+# TradingView-Wishlist-Panel-Chrome-Extension
