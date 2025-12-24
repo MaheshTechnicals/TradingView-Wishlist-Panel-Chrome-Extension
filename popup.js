@@ -1,13 +1,18 @@
 // Popup script for toggle control
 document.addEventListener('DOMContentLoaded', function() {
+  // Use browser API (Firefox) or chrome API (Chrome) - both work cross-browser
+  const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+  
   const togglePanel = document.getElementById('togglePanel');
   const statusDiv = document.getElementById('status');
 
   // Load saved state
-  chrome.storage.local.get(['panelEnabled'], function(result) {
+  browserAPI.storage.local.get(['panelEnabled']).then(function(result) {
     const isEnabled = result.panelEnabled === true; // Default to false (OFF)
     togglePanel.checked = isEnabled;
     updateStatus(isEnabled);
+  }).catch(function(error) {
+    console.error('Error loading state:', error);
   });
 
   // Handle toggle change
@@ -15,11 +20,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const isEnabled = togglePanel.checked;
     
     // Save state
-    chrome.storage.local.set({ panelEnabled: isEnabled }, function() {
+    browserAPI.storage.local.set({ panelEnabled: isEnabled }).then(function() {
       updateStatus(isEnabled);
       
       // Notify user to refresh
       showNotification(isEnabled);
+    }).catch(function(error) {
+      console.error('Error saving state:', error);
     });
   });
 

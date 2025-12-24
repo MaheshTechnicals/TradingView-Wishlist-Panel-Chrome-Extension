@@ -2,6 +2,9 @@
 (function() {
   'use strict';
 
+  // Use browser API (Firefox) or chrome API (Chrome) - both work cross-browser
+  const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
   let stocks = [];
   let selectedIndex = 0;
   const STORAGE_KEY = 'tradingview_wishlist_selected';
@@ -9,18 +12,18 @@
   // Initialize the extension
   async function init() {
     // Check if panel is enabled
-    chrome.storage.local.get(['panelEnabled'], async (result) => {
-      const isEnabled = result.panelEnabled === true; // Default to false (OFF)
-      
-      if (!isEnabled) {
-        console.log('TradingView Wishlist Panel is disabled');
-        removePanel();
-        return;
-      }
+    const result = await browserAPI.storage.local.get(['panelEnabled']);
+    const isEnabled = result.panelEnabled === true; // Default to false (OFF)
+    
+    if (!isEnabled) {
+      console.log('TradingView Wishlist Panel is disabled');
+      removePanel();
+      return;
+    }
 
-      try {
-        // Load stocks from list.txt
-        const listUrl = chrome.runtime.getURL('list.txt');
+    try {
+      // Load stocks from list.txt
+      const listUrl = browserAPI.runtime.getURL('list.txt');
         const response = await fetch(listUrl);
         const text = await response.text();
         stocks = text.trim().split('\n').filter(s => s.trim());
@@ -31,30 +34,28 @@
         }
 
         // Get current symbol from URL
-        const currentSymbol = getCurrentSymbolFromURL();
-        
-        // Try to restore selected index from storage or URL
-        chrome.storage.local.get([STORAGE_KEY], (result) => {
-          if (result[STORAGE_KEY] !== undefined) {
-            selectedIndex = result[STORAGE_KEY];
-          } else if (currentSymbol) {
-            // Find matching stock in list
-            const matchIndex = stocks.findIndex(s => s === currentSymbol);
-            if (matchIndex !== -1) {
-              selectedIndex = matchIndex;
-            }
-          }
-
-          // Ensure valid index
-          if (selectedIndex >= stocks.length) selectedIndex = 0;
-
-          createPanel();
-          setupKeyboardNavigation();
-        });
-      } catch (error) {
-        console.error('Error initializing TradingView Wishlist:', error);
+      const currentSymbol = getCurrentSymbolFromURL();
+      
+      // Try to restore selected index from storage or URL
+      const savedData = await browserAPI.storage.local.get([STORAGE_KEY]);
+      if (savedData[STORAGE_KEY] !== undefined) {
+        selectedIndex = savedData[STORAGE_KEY];
+      } else if (currentSymbol) {
+        // Find matching stock in list
+        const matchIndex = stocks.findIndex(s => s === currentSymbol);
+        if (matchIndex !== -1) {
+          selectedIndex = matchIndex;
+        }
       }
-    });
+
+      // Ensure valid index
+      if (selectedIndex >= stocks.length) selectedIndex = 0;
+
+      createPanel();
+      setupKeyboardNavigation();
+    } catch (error) {
+      console.error('Error initializing TradingView Wishlist:', error);
+    }
   }
 
   // Extract current symbol from TradingView URL
@@ -182,7 +183,7 @@
     selectedIndex = index;
     
     // Save to storage
-    chrome.storage.local.set({ [STORAGE_KEY]: selectedIndex });
+    browserAPI.storage.local.set({ [STORAGE_KEY]: selectedIndex });
 
     // Update UI
     updateActiveItem();
@@ -242,7 +243,7 @@
   }
 
   // Listen for storage changes (toggle from popup)
-  chrome.storage.onChanged.addListener((changes, namespace) => {
+  browserAPI.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local' && changes.panelEnabled) {
       const isEnabled = changes.panelEnabled.newValue;
       

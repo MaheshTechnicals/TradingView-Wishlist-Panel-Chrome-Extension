@@ -1,6 +1,8 @@
 # 📊 TradingView Wishlist Panel
 
-A modern, dark-themed Chrome extension that adds a beautiful wishlist panel to TradingView charts with keyboard navigation and smooth animations.
+A modern, dark-themed browser extension that adds a beautiful wishlist panel to TradingView charts with keyboard navigation and smooth animations.
+
+**✨ Cross-Browser Support**: Works on Chrome, Firefox, Edge, and other Chromium-based browsers!
 
 ## ✨ Features
 
@@ -14,12 +16,15 @@ A modern, dark-themed Chrome extension that adds a beautiful wishlist panel to T
 
 ## 📦 Installation
 
-### Method 1: Load Unpacked Extension (For Development)
+### Chrome / Edge / Chromium Browsers
+
+#### Method 1: Load Unpacked Extension (For Development)
 
 1. **Download/Clone this repository** to your local machine
 
 2. **Open Chrome Extensions Page**:
-   - Navigate to `chrome://extensions/`
+   - Navigate to `chrome://extensions/` (Chrome)
+   - Or `edge://extensions/` (Edge)
    - Or click Menu (⋮) → Extensions → Manage Extensions
 
 3. **Enable Developer Mode**:
@@ -33,12 +38,28 @@ A modern, dark-themed Chrome extension that adds a beautiful wishlist panel to T
    - You should see "TradingView Wishlist Panel" in your extensions list
    - The extension should be enabled by default
 
-### Method 2: Create Extension Package (For Distribution)
+#### Method 2: Create Extension Package (For Distribution)
 
 1. Navigate to `chrome://extensions/`
 2. Click "Pack extension"
 3. Select the extension directory
 4. Share the generated `.crx` file
+
+### Firefox
+
+#### Quick Install (Temporary - For Testing)
+
+1. **Open Firefox Add-ons Debug Page**:
+   - Type `about:debugging` in the address bar
+   - Click "This Firefox" in the left sidebar
+
+2. **Load the Extension**:
+   - Click "Load Temporary Add-on..."
+   - Navigate to your extension folder and select `manifest.json`
+
+3. **Note**: Temporary extensions are removed when Firefox closes
+
+📖 **For permanent Firefox installation**, see [FIREFOX_INSTALL.md](FIREFOX_INSTALL.md) for detailed instructions including signing and XPI packaging.
 
 ## 🚀 Usage
 
@@ -71,12 +92,16 @@ A modern, dark-themed Chrome extension that adds a beautiful wishlist panel to T
 
 ```
 tradingview-wishlist/
-├── manifest.json       # Extension configuration
-├── content.js          # Main logic and injection
-├── styles.css          # Dark gradient styling
-├── list.txt            # Your stock symbols
-├── README.md           # This file
-└── icon*.png          # Extension icons (optional)
+├── manifest.json           # Extension configuration (Chrome + Firefox)
+├── content.js              # Main logic and injection
+├── popup.js                # Popup toggle functionality
+├── popup.html              # Extension popup UI
+├── styles.css              # Dark gradient styling
+├── browser-polyfill.js     # Cross-browser compatibility (optional)
+├── list.txt                # Your stock symbols
+├── README.md               # This file
+├── FIREFOX_INSTALL.md      # Firefox-specific installation guide
+└── icon*.png               # Extension icons (optional)
 ```
 
 ## 🎨 Customization
@@ -164,21 +189,30 @@ In `styles.css`, modify the panel position:
 To update your stock list:
 
 1. Edit `list.txt` in the extension folder
-2. Reload the extension in `chrome://extensions/`
+2. Reload the extension:
+   - **Chrome/Edge**: `chrome://extensions/` → Click reload icon
+   - **Firefox**: `about:debugging` → Click "Reload"
 3. Refresh TradingView page
 
 ## 📝 Notes
 
 - The extension only works on TradingView chart pages
 - Internet connection required to load charts
-- Compatible with Chrome, Edge, and other Chromium-based browsers
+- Compatible with Chrome, Firefox, Edge, and other Chromium-based browsers
 - Does not interfere with TradingView's native functionality
 
-## 🎯 Compatibility
+## 🎯 Browser Compatibility
 
-- **Browsers**: Chrome 88+, Edge 88+, Brave, Opera
-- **TradingView**: Works with the Indian TradingView site (`in.tradingview.com`)
-- **Screen Sizes**: Responsive from 768px to 4K displays
+| Browser | Version | Status |
+|---------|---------|--------|
+| Chrome | 88+ | ✅ Fully Supported |
+| Firefox | 109+ | ✅ Fully Supported |
+| Edge | 88+ | ✅ Fully Supported |
+| Brave | Latest | ✅ Fully Supported |
+| Opera | Latest | ✅ Fully Supported |
+
+**Screen Sizes**: Responsive from 768px to 4K displays  
+**TradingView**: Works with all TradingView domains (in.tradingview.com, www.tradingview.com)
 
 ## 💡 Tips
 
