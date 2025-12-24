@@ -16,19 +16,48 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Handle toggle change
-  togglePanel.addEventListener('change', function() {
+  togglePanel.addEventListener('change', async function() {
     const isEnabled = togglePanel.checked;
     
     // Save state
-    browserAPI.storage.local.set({ panelEnabled: isEnabled }).then(function() {
+    try {
+      await browserAPI.storage.local.set({ panelEnabled: isEnabled });
       updateStatus(isEnabled);
       
-      // Notify user to refresh
+      // If enabled, check if user is on TradingView
+      if (isEnabled) {
+        await checkAndNavigateToTradingView();
+      }
+      
+      // Notify user
       showNotification(isEnabled);
-    }).catch(function(error) {
+    } catch (error) {
       console.error('Error saving state:', error);
-    });
+    }
   });
+
+  // Check current tab and navigate to TradingView if needed
+  async function checkAndNavigateToTradingView() {
+    try {
+      const tabs = await browserAPI.tabs.query({ active: true, currentWindow: true });
+      if (tabs.length > 0) {
+        const currentTab = tabs[0];
+        const url = currentTab.url || '';
+        
+        // Check if already on TradingView
+        const isTradingView = url.includes('tradingview.com');
+        
+        if (!isTradingView) {
+          // Navigate to TradingView chart page
+          await browserAPI.tabs.update(currentTab.id, {
+            url: 'https://in.tradingview.com/chart/'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking/navigating to TradingView:', error);
+    }
+  }
 
   function updateStatus(isEnabled) {
     if (isEnabled) {

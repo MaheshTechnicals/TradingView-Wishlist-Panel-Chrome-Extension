@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "A modern, dark-themed wishlist panel for TradingView charts with keyboard navigation and smooth animations",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs"
   ],
   "action": {
     "default_popup": "popup.html",
