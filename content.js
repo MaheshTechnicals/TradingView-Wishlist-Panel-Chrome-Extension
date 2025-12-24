@@ -102,10 +102,16 @@
     // Create header
     const header = document.createElement('div');
     header.className = 'tv-wishlist-header';
-    header.innerHTML = `
-      <h3>📊 Wishlist</h3>
-      <div class="tv-wishlist-subtitle">${stocks.length} Stocks</div>
-    `;
+    
+    const h3 = document.createElement('h3');
+    h3.textContent = '📊 Wishlist';
+    
+    const subtitle = document.createElement('div');
+    subtitle.className = 'tv-wishlist-subtitle';
+    subtitle.textContent = `${stocks.length} Stocks`;
+    
+    header.appendChild(h3);
+    header.appendChild(subtitle);
 
     // Create list container
     const listContainer = document.createElement('div');
@@ -123,15 +129,37 @@
 
       // Extract symbol name (NSE:INFY -> INFY)
       const symbolName = stock.split(':')[1] || stock;
+      const exchangeName = stock.split(':')[0];
       
-      item.innerHTML = `
-        <div class="tv-wishlist-item-number">${index + 1}</div>
-        <div class="tv-wishlist-item-content">
-          <span class="tv-wishlist-symbol">${symbolName}</span>
-          <span class="tv-wishlist-exchange">${stock.split(':')[0]}</span>
-        </div>
-        <div class="tv-wishlist-arrow">→</div>
-      `;
+      // Create item number
+      const itemNumber = document.createElement('div');
+      itemNumber.className = 'tv-wishlist-item-number';
+      itemNumber.textContent = index + 1;
+      
+      // Create item content
+      const itemContent = document.createElement('div');
+      itemContent.className = 'tv-wishlist-item-content';
+      
+      const symbolSpan = document.createElement('span');
+      symbolSpan.className = 'tv-wishlist-symbol';
+      symbolSpan.textContent = symbolName;
+      
+      const exchangeSpan = document.createElement('span');
+      exchangeSpan.className = 'tv-wishlist-exchange';
+      exchangeSpan.textContent = exchangeName;
+      
+      itemContent.appendChild(symbolSpan);
+      itemContent.appendChild(exchangeSpan);
+      
+      // Create arrow
+      const arrow = document.createElement('div');
+      arrow.className = 'tv-wishlist-arrow';
+      arrow.textContent = '→';
+      
+      // Assemble item
+      item.appendChild(itemNumber);
+      item.appendChild(itemContent);
+      item.appendChild(arrow);
 
       item.addEventListener('click', () => selectStock(index));
       listContainer.appendChild(item);
