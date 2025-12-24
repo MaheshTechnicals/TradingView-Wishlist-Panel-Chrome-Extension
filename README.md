@@ -23,9 +23,44 @@ A modern, dark-themed browser extension that adds a beautiful wishlist panel to 
 
 ## 📦 Installation Guide
 
+### Quick Install (Recommended)
+
+**📥 Download Pre-built Extension**:
+
+1. Go to [Releases Page](../../releases)
+2. Download the appropriate file for your browser:
+   - **Chrome/Edge/Brave/Opera**: Download `tradingview-wishlist-extension-vX.X.X.zip`
+   - **Firefox**: Download `tradingview-wishlist-firefox-vX.X.X.xpi`
+3. Follow installation instructions below for your browser
+
+---
+
 ### Chrome / Edge / Brave / Opera (Chromium-based Browsers)
 
-#### Method 1: Load Unpacked Extension (Recommended for Development/Testing)
+#### Method 1: Install from Release ZIP (Recommended)
+
+1. **Download** the latest `tradingview-wishlist-extension-vX.X.X.zip` from [Releases](../../releases)
+
+2. **Extract the ZIP** file to a folder on your computer
+
+3. **Open Browser Extensions Page**:
+   - **Chrome**: Navigate to `chrome://extensions/`
+   - **Edge**: Navigate to `edge://extensions/`
+   - **Brave**: Navigate to `brave://extensions/`
+   - **Opera**: Navigate to `opera://extensions/`
+
+4. **Enable Developer Mode**:
+   - Toggle the "Developer mode" switch in the top-right corner
+
+5. **Load the Extension**:
+   - Click "Load unpacked" button
+   - Select the extracted folder
+
+6. **Verify Installation**:
+   - You should see "TradingView Wishlist Panel" in your extensions list
+   - The extension icon should appear in your browser toolbar
+
+#### Method 2: Load Unpacked Extension (For Development/Testing)
 
 1. **Download/Clone this repository** to your local machine
 
@@ -62,10 +97,25 @@ A modern, dark-themed browser extension that adds a beautiful wishlist panel to 
 
 ### Firefox
 
-#### Method 1: Temporary Installation (Quick Testing)
+#### Method 1: Install from Release XPI (Recommended)
+
+1. **Download** the latest `tradingview-wishlist-firefox-vX.X.X.xpi` from [Releases](../../releases)
+
+2. **Install in Firefox**:
+   - **Option A**: Drag and drop the `.xpi` file into Firefox window
+   - **Option B**: File → Open File → Select the `.xpi` file
+   - Click "Add" when prompted
+
+3. **Verify Installation**:
+   - Extension icon appears in Firefox toolbar
+   - The panel works on TradingView pages
+
+**Note**: For unsigned extensions, Firefox may show warnings. See Method 4 below for permanent installation.
+
+#### Method 2: Temporary Installation (Quick Testing)
 
 This is the **fastest** way to test the extension on Firefox:
-
+3
 1. **Open Firefox Debug Page**:
    - Type `about:debugging` in the address bar and press Enter
    - Click "This Firefox" in the left sidebar
@@ -100,7 +150,7 @@ Create a distributable Firefox extension package:
 - For personal use, temporary loading is sufficient
 - For public distribution, submit to [Firefox Add-ons](https://addons.mozilla.org/developers/)
 
-#### Method 3: Permanent Installation with Signing (Public Distribution)
+#### Method 4: Permanent Installation with Signing (Public Distribution)
 
 For production/permanent installation:
 
@@ -120,7 +170,7 @@ For production/permanent installation:
    - Drag and drop it into Firefox
    - Extension will install permanently
 
-#### Method 4: Firefox Developer Edition (Skip Signing)
+#### Method 5: Firefox Developer Edition (Skip Signing)
 
 ⚠️ **Only for Firefox Developer Edition or Nightly**:
 
