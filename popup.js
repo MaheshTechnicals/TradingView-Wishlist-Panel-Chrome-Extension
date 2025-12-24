@@ -36,11 +36,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Check current tab and navigate to TradingView if needed
+  // Check current tab and navigate to TradingView if needed (Cross-browser compatible)
   async function checkAndNavigateToTradingView() {
     try {
+      // Query active tab - works on Chrome, Firefox, Edge, Brave, Opera
       const tabs = await browserAPI.tabs.query({ active: true, currentWindow: true });
-      if (tabs.length > 0) {
+      
+      if (tabs && tabs.length > 0) {
         const currentTab = tabs[0];
         const url = currentTab.url || '';
         
@@ -49,13 +51,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!isTradingView) {
           // Navigate to TradingView chart page
-          await browserAPI.tabs.update(currentTab.id, {
-            url: 'https://in.tradingview.com/chart/'
-          });
+          // Use Promise-based approach for better compatibility
+          if (currentTab.id) {
+            await browserAPI.tabs.update(currentTab.id, {
+              url: 'https://in.tradingview.com/chart/'
+            });
+          }
         }
       }
     } catch (error) {
+      // Fallback: If tabs API fails, just show notification
       console.error('Error checking/navigating to TradingView:', error);
+      console.log('Please navigate to TradingView manually');
     }
   }
 
