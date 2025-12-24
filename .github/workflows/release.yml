@@ -25,6 +25,9 @@ on:
           ## Installation
           Download the ZIP file and follow the installation instructions in the README.
 
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
@@ -67,37 +70,20 @@ jobs:
           echo "✅ Extension packages created successfully"
           ls -lh *.zip *.xpi
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version }}
-          release_name: ${{ github.event.inputs.release_name }} ${{ github.event.inputs.version }}
+          name: ${{ github.event.inputs.release_name }} ${{ github.event.inputs.version }}
           body: ${{ github.event.inputs.release_notes }}
           draft: false
           prerelease: false
-
-      - name: Upload Chrome/Edge Extension ZIP
-        uses: actions/upload-release-asset@v1
+          files: |
+            tradingview-wishlist-extension.zip
+            tradingview-wishlist-firefox.xpi
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./tradingview-wishlist-extension.zip
-          asset_name: tradingview-wishlist-extension-${{ github.event.inputs.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Upload Firefox Extension XPI
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./tradingview-wishlist-firefox.xpi
-          asset_name: tradingview-wishlist-firefox-${{ github.event.inputs.version }}.xpi
-          asset_content_type: application/x-xpinstall
 
       - name: Release Summary
         run: |
