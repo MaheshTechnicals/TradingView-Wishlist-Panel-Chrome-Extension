@@ -1,0 +1,107 @@
+name: Create Extension Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+      release_name:
+        description: 'Release name'
+        required: true
+        default: 'TradingView Wishlist Panel'
+      release_notes:
+        description: 'Release notes/description'
+        required: false
+        default: |
+          ## Features
+          - Modern dark-themed wishlist panel for TradingView
+          - Keyboard navigation with Arrow keys
+          - Toggle panel on/off from popup
+          - Persistent state across page refreshes
+          - Cross-browser support (Chrome, Firefox, Edge, Brave, Opera)
+          
+          ## Installation
+          Download the ZIP file and follow the installation instructions in the README.
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create extension package
+        run: |
+          # Create a clean directory for the extension
+          mkdir -p extension-package
+          
+          # Copy necessary files
+          cp manifest.json extension-package/
+          cp content.js extension-package/
+          cp popup.js extension-package/
+          cp popup.html extension-package/
+          cp styles.css extension-package/
+          cp list.txt extension-package/
+          
+          # Copy icons if they exist
+          if [ -f icon16.png ]; then cp icon16.png extension-package/; fi
+          if [ -f icon48.png ]; then cp icon48.png extension-package/; fi
+          if [ -f icon128.png ]; then cp icon128.png extension-package/; fi
+          
+          # Copy browser-polyfill if it exists
+          if [ -f browser-polyfill.js ]; then cp browser-polyfill.js extension-package/; fi
+          
+          # Create ZIP file for Chrome/Edge/Brave/Opera
+          cd extension-package
+          zip -r ../tradingview-wishlist-extension.zip .
+          cd ..
+          
+          # Create XPI file for Firefox (same content, different extension)
+          cd extension-package
+          zip -r ../tradingview-wishlist-firefox.xpi .
+          cd ..
+          
+          echo "✅ Extension packages created successfully"
+          ls -lh *.zip *.xpi
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: ${{ github.event.inputs.release_name }} ${{ github.event.inputs.version }}
+          body: ${{ github.event.inputs.release_notes }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Chrome/Edge Extension ZIP
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./tradingview-wishlist-extension.zip
+          asset_name: tradingview-wishlist-extension-${{ github.event.inputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Firefox Extension XPI
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./tradingview-wishlist-firefox.xpi
+          asset_name: tradingview-wishlist-firefox-${{ github.event.inputs.version }}.xpi
+          asset_content_type: application/x-xpinstall
+
+      - name: Release Summary
+        run: |
+          echo "🎉 Release created successfully!"
+          echo "📦 Version: ${{ github.event.inputs.version }}"
+          echo "📥 Download links will be available in the release page"
+          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ github.event.inputs.version }}"
