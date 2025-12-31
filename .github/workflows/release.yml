@@ -57,7 +57,7 @@ on:
           - All existing settings and preferences are preserved
           - Simply reload the extension with the new files
           
-          For detailed documentation, see the [README.md](https://github.com/${{ github.repository }}/blob/main/README.md)
+          For detailed documentation, see the README.md in the repository.
 
 permissions:
   contents: write
