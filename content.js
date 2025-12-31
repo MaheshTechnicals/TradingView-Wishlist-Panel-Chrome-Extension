@@ -8,6 +8,9 @@
   let stocks = [];
   let selectedIndex = 0;
   const STORAGE_KEY = 'tradingview_wishlist_selected';
+  const CACHE_KEY = 'tradingview_wishlist_cache';
+  const API_URL = 'https://nse-result-calendar.netlify.app/api/fno-list';
+  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
   // Initialize the extension
   async function init() {
@@ -22,11 +25,8 @@
     }
 
     try {
-      // Load stocks from list.txt
-      const listUrl = browserAPI.runtime.getURL('list.txt');
-        const response = await fetch(listUrl);
-        const text = await response.text();
-        stocks = text.trim().split('\n').filter(s => s.trim());
+      // Load stocks from API with caching
+      await loadStocksFromAPI();
 
         if (stocks.length === 0) {
           console.error('No stocks found in list.txt');
@@ -55,6 +55,85 @@
       setupKeyboardNavigation();
     } catch (error) {
       console.error('Error initializing TradingView Wishlist:', error);
+    }
+  }
+
+  // Load stocks from API with caching and fallback
+  async function loadStocksFromAPI() {
+    try {
+      // Check cache first
+      const cachedData = await getCachedStocks();
+      if (cachedData && cachedData.symbols && cachedData.timestamp) {
+        const cacheAge = Date.now() - cachedData.timestamp;
+        if (cacheAge < CACHE_DURATION) {
+          console.log('Using cached stock data');
+          stocks = cachedData.symbols;
+          return;
+        }
+      }
+
+      // Fetch from API
+      console.log('Fetching stock list from API...');
+      const response = await fetch(API_URL);
+      
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.symbols || !Array.isArray(data.symbols)) {
+        throw new Error('Invalid API response format');
+      }
+
+      // Convert symbols to NSE:SYMBOL format
+      stocks = data.symbols.map(symbol => `NSE:${symbol}`);
+      
+      // Cache the data
+      await cacheStocks(stocks);
+      
+      console.log(`Loaded ${stocks.length} stocks from API (${data.lastUpdated})`);
+      
+    } catch (error) {
+      console.error('Error loading stocks from API:', error);
+      
+      // Fallback: Try to load from list.txt if it exists
+      try {
+        console.log('Attempting to load from fallback list.txt...');
+        const listUrl = browserAPI.runtime.getURL('list.txt');
+        const response = await fetch(listUrl);
+        const text = await response.text();
+        stocks = text.trim().split('\n').filter(s => s.trim());
+        console.log(`Loaded ${stocks.length} stocks from fallback list.txt`);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        throw new Error('Failed to load stock list from both API and fallback');
+      }
+    }
+  }
+
+  // Get cached stocks from localStorage
+  async function getCachedStocks() {
+    try {
+      const result = await browserAPI.storage.local.get([CACHE_KEY]);
+      return result[CACHE_KEY] || null;
+    } catch (error) {
+      console.error('Error reading cache:', error);
+      return null;
+    }
+  }
+
+  // Cache stocks in localStorage
+  async function cacheStocks(stockList) {
+    try {
+      const cacheData = {
+        symbols: stockList,
+        timestamp: Date.now()
+      };
+      await browserAPI.storage.local.set({ [CACHE_KEY]: cacheData });
+      console.log('Stock list cached successfully');
+    } catch (error) {
+      console.error('Error caching stocks:', error);
     }
   }
 

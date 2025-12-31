@@ -1,13 +1,16 @@
-# 📊 TradingView Wishlist Panel
+# 📊 TradingView Wishlist Panel v1.2.0
 
-A modern, dark-themed browser extension that adds a beautiful wishlist panel to TradingView charts with keyboard navigation and smooth animations.
+A modern, dark-themed browser extension that adds a beautiful wishlist panel to TradingView charts with **dynamic FnO stock list**, keyboard navigation and smooth animations.
 
 **✨ Cross-Browser Support**: Works on Chrome, Firefox, Edge, Brave, Opera, and other Chromium-based browsers!
+**🔄 Dynamic Updates**: Fetches latest FnO stocks from API automatically!
 
 ---
 
 ## ✨ Features
 
+- **🔄 Dynamic Stock List**: Automatically fetches latest FnO stocks from API (no manual updates needed!)
+- **💾 Smart Caching**: Caches stock list for 24 hours to improve performance
 - **🎨 Modern Dark UI**: Gradient-based design with smooth animations and glassmorphism effects
 - **⌨️ Keyboard Navigation**: Use Arrow Up/Down keys to navigate through stocks instantly
 - **💾 State Persistence**: Selected stock remains active even after page refresh
@@ -18,6 +21,7 @@ A modern, dark-themed browser extension that adds a beautiful wishlist panel to 
 - **🔄 Toggle Control**: Enable/disable the panel anytime via the extension popup
 - **📋 Collapsible Panel**: Minimize the panel to save screen space
 - **🌐 Cross-Browser**: Works seamlessly on all major browsers
+- **🔒 Fallback Support**: Uses local list.txt as backup if API fails
 
 ---
 
@@ -189,26 +193,24 @@ For production/permanent installation:
    - Open [TradingView](https://in.tradingview.com/chart/) in your browser
    - The wishlist panel will automatically appear on the right side of the page
 
-2. **Customize Your Watchlist**:
-   - Open the extension folder on your computer
-   - Edit the `list.txt` file
-   - Add stock symbols in the format: `EXCHANGE:SYMBOL`
-   - One symbol per line
+2. **Stock List is Automatic** (v1.2.0+):
+   - The extension automatically fetches the latest NSE FnO stocks from our API
+   - No manual configuration needed!
+   - Stock list updates automatically every 24 hours
+   - API Source: `https://nse-result-calendar.netlify.app/api/fno-list`
    
-   **Example** (`list.txt`):
+   **Manual Override (Optional)**:
+   If you want to use a custom list, edit the `list.txt` file:
    ```
    NSE:INFY
    NSE:RELIANCE
    NSE:TCS
    NSE:HDFCBANK
-   NSE:ICICIBANK
-   BSE:SENSEX
-   NASDAQ:AAPL
-   NASDAQ:GOOGL
    ```
+   The extension will use list.txt as fallback if API is unavailable.
 
 3. **Reload TradingView**:
-   - Refresh the page to see your updated watchlist
+   - Refresh the page to see the stock list
 
 ### Using the Panel
 
@@ -260,13 +262,13 @@ For production/permanent installation:
 
 ```
 tradingview-wishlist/
-├── manifest.json           # Extension configuration (Manifest V3)
-├── content.js              # Main logic: panel creation, navigation, storage
+├── manifest.json           # Extension configuration (Manifest V3, v1.2.0)
+├── content.js              # Main logic: API fetch, caching, panel creation, navigation
 ├── popup.js                # Popup toggle control functionality
 ├── popup.html              # Extension popup UI with toggle switch
 ├── styles.css              # Dark gradient styling and animations
 ├── browser-polyfill.js     # Cross-browser API compatibility layer
-├── list.txt                # Your stock watchlist (editable)
+├── list.txt                # Fallback stock watchlist (if API fails)
 ├── package-firefox.sh      # Script to create Firefox XPI package
 ├── README.md               # This file (comprehensive guide)
 └── icon*.png               # Extension icons (optional)
@@ -276,9 +278,19 @@ tradingview-wishlist/
 
 ## 🎨 Customization
 
-### Change Stock List
+### Stock List (v1.2.0)
 
-Edit `list.txt` with your preferred stocks:
+**Automatic Mode (Default)**:
+The extension automatically fetches the latest NSE FnO stocks from:
+```
+https://nse-result-calendar.netlify.app/api/fno-list
+```
+- Updates every 24 hours
+- No configuration needed
+- Always shows current FnO stocks
+
+**Manual Override (Optional)**:
+To use a custom list, edit `list.txt`:
 
 ```
 NSE:ADANIENT
@@ -295,7 +307,12 @@ NASDAQ:MSFT
 - US Stocks: `NASDAQ:SYMBOL` or `NYSE:SYMBOL`
 - Any TradingView symbol: `EXCHANGE:SYMBOL`
 
-After editing, refresh the TradingView page to see changes.
+**Force API Refresh**:
+Clear the extension's cache to fetch fresh data immediately:
+1. Open browser DevTools (F12)
+2. Go to Application → Storage → Local Storage
+3. Find and delete `tradingview_wishlist_cache`
+4. Refresh TradingView page
 
 ### Modify Panel Styling
 
@@ -323,12 +340,28 @@ background: linear-gradient(135deg, rgba(88, 86, 214, 0.25) 0%, rgba(131, 58, 18
 
 ## 🔧 Technical Details
 
-### Architecture
+### Architecture (v1.2.0)
 
 - **Manifest Version**: 3 (Latest standard)
 - **Content Script**: Injects panel into TradingView pages
+- **API Integration**: Fetches stocks from REST API with caching
 - **Background**: None (lightweight, no background process)
 - **Popup**: Toggle control for enabling/disabling panel
+
+### API Details
+
+- **Endpoint**: `https://nse-result-calendar.netlify.app/api/fno-list`
+- **Method**: GET
+- **Response Format**: 
+  ```json
+  {
+    "symbols": ["360ONE", "ABB", "ABCAPITAL", ...],
+    "count": 208,
+    "lastUpdated": "2025-12"
+  }
+  ```
+- **Cache Duration**: 24 hours
+- **Fallback**: Uses local list.txt if API fails
 
 ### Permissions
 
@@ -340,7 +373,10 @@ background: linear-gradient(135deg, rgba(88, 86, 214, 0.25) 0%, rgba(131, 58, 18
 ### Storage
 
 - Uses `chrome.storage.local` / `browser.storage.local`
-- Stores: `panelEnabled` (boolean), `tradingview_wishlist_selected` (index)
+- **Stores**: 
+  - `panelEnabled` (boolean) - Panel toggle state
+  - `tradingview_wishlist_selected` (number) - Selected stock index
+  - `tradingview_wishlist_cache` (object) - Cached API data with timestamp
 - Storage is synced across sessions
 
 ### Cross-Browser Compatibility
@@ -390,29 +426,23 @@ This ensures seamless operation on both Chrome (uses `chrome.*` API) and Firefox
 
 ### Stocks Not Loading
 
-1. **Verify `list.txt` exists** in extension folder
-2. **Check format**: 
-   - One symbol per line
-   - Format: `EXCHANGE:SYMBOL`
-   - No empty lines at start/end
-3. **Reload extension**: 
+1. **Check API Status**:
+   - Open browser DevTools (F12) → Console tab
+   - Look for "Fetching stock list from API..." or error messages
+   - If API fails, extension will use fallback list.txt
+
+2. **Verify `list.txt` exists** as fallback in extension folder
+
+3. **Clear cache and retry**:
+   - Open DevTools (F12) → Application → Storage
+   - Find and delete `tradingview_wishlist_cache`
+   - Refresh TradingView page
+
+4. **Check internet connection**: API requires active internet
+
+5. **Reload extension**: 
    - `chrome://extensions/` → Click reload icon
    - Then refresh TradingView page
-
-**Example valid format**:
-```
-NSE:INFY
-NSE:TCS
-NSE:RELIANCE
-```
-
-**Invalid format** (will cause errors):
-```
-INFY           ❌ Missing exchange
-NSE: TCS       ❌ Space after colon
-               ❌ Empty lines
-NSE:INFY,TCS   ❌ Multiple symbols on one line
-```
 
 ### Selection Not Persisting
 
@@ -443,15 +473,23 @@ NSE:INFY,TCS   ❌ Multiple symbols on one line
 
 ## 🔄 Updating the Extension
 
+### Version 1.2.0 Updates
+
+**New Features:**
+- ✅ Dynamic stock list from API (no manual updates!)
+- ✅ Smart caching (24-hour cache for performance)
+- ✅ Automatic fallback to list.txt if API fails
+- ✅ Latest NSE FnO stocks always available
+
 ### Update Stock List
 
-1. Open extension folder on your computer
-2. Edit `list.txt` file
-3. Add/remove stocks in `EXCHANGE:SYMBOL` format
-4. **Reload extension**:
-   - **Chrome/Edge**: Go to `chrome://extensions/` → Click ↻ reload icon
-   - **Firefox**: Go to `about:debugging` → Click "Reload" button
-5. **Refresh TradingView page** in browser
+**Automatic (v1.2.0+)**:
+- Stock list updates automatically from API every 24 hours
+- No manual action needed!
+
+**Manual Refresh**:
+1. Clear cache in browser DevTools
+2. Or wait 24 hours for auto-refresh
 
 ### Update Extension Code
 

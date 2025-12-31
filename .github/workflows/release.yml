@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., v1.0.0)'
+        description: 'Release version (e.g., v1.2.0)'
         required: true
-        default: 'v1.0.0'
+        default: 'v1.2.0'
       release_name:
         description: 'Release name'
         required: true
@@ -15,15 +15,49 @@ on:
         description: 'Release notes/description'
         required: false
         default: |
-          ## Features
+          ## ✨ What's New in v1.2.0
+          
+          ### 🚀 Major Features
+          - **Dynamic Stock List**: Automatically fetches latest NSE FnO stocks from API
+          - **Smart Caching**: 24-hour cache for optimal performance
+          - **Auto-Updates**: Stock list refreshes automatically every 24 hours
+          - **Fallback Support**: Uses local list.txt as backup if API is unavailable
+          
+          ### 🎨 Core Features
           - Modern dark-themed wishlist panel for TradingView
-          - Keyboard navigation with Arrow keys
-          - Toggle panel on/off from popup
+          - Keyboard navigation with Arrow Up/Down keys
+          - Toggle panel on/off from extension popup
           - Persistent state across page refreshes
+          - Collapsible panel to save screen space
           - Cross-browser support (Chrome, Firefox, Edge, Brave, Opera)
           
-          ## Installation
-          Download the ZIP file and follow the installation instructions in the README.
+          ### 🔧 Technical Improvements
+          - API Integration: https://nse-result-calendar.netlify.app/api/fno-list
+          - Enhanced error handling with automatic fallback
+          - Improved caching mechanism
+          - Better console logging for debugging
+          
+          ## 📥 Installation
+          
+          ### Chrome/Edge/Brave/Opera
+          1. Download `tradingview-wishlist-extension-v1.2.0.zip`
+          2. Extract the ZIP file
+          3. Go to `chrome://extensions/` (or your browser's extension page)
+          4. Enable "Developer mode"
+          5. Click "Load unpacked" and select the extracted folder
+          
+          ### Firefox
+          1. Download `tradingview-wishlist-firefox-v1.2.0.xpi`
+          2. Go to `about:debugging#/runtime/this-firefox`
+          3. Click "Load Temporary Add-on"
+          4. Select the `.xpi` file
+          
+          ## 📋 Upgrading from v1.0.0
+          - No breaking changes!
+          - All existing settings and preferences are preserved
+          - Simply reload the extension with the new files
+          
+          For detailed documentation, see the [README.md](https://github.com/${{ github.repository }}/blob/main/README.md)
 
 permissions:
   contents: write
@@ -41,13 +75,17 @@ jobs:
           # Create a clean directory for the extension
           mkdir -p extension-package
           
-          # Copy necessary files
+          # Copy necessary core files
           cp manifest.json extension-package/
           cp content.js extension-package/
           cp popup.js extension-package/
           cp popup.html extension-package/
           cp styles.css extension-package/
           cp list.txt extension-package/
+          
+          # Copy documentation
+          cp README.md extension-package/
+          cp CHANGELOG.md extension-package/
           
           # Copy icons if they exist
           if [ -f icon16.png ]; then cp icon16.png extension-package/; fi
@@ -57,18 +95,25 @@ jobs:
           # Copy browser-polyfill if it exists
           if [ -f browser-polyfill.js ]; then cp browser-polyfill.js extension-package/; fi
           
+          # Get version from manifest.json
+          VERSION=$(grep -o '"version": "[^"]*"' manifest.json | cut -d'"' -f4)
+          echo "📦 Packaging version: v${VERSION}"
+          
           # Create ZIP file for Chrome/Edge/Brave/Opera
           cd extension-package
-          zip -r ../tradingview-wishlist-extension.zip .
+          zip -r ../tradingview-wishlist-extension-v${VERSION}.zip .
           cd ..
           
           # Create XPI file for Firefox (same content, different extension)
           cd extension-package
-          zip -r ../tradingview-wishlist-firefox.xpi .
+          zip -r ../tradingview-wishlist-firefox-v${VERSION}.xpi .
           cd ..
           
           echo "✅ Extension packages created successfully"
-          ls -lh *.zip *.xpi
+          ls -lh tradingview-wishlist-*
+          
+          # Store version for later steps
+          echo "PACKAGE_VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
@@ -79,8 +124,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            tradingview-wishlist-extension.zip
-            tradingview-wishlist-firefox.xpi
+            tradingview-wishlist-extension-v*.zip
+            tradingview-wishlist-firefox-v*.xpi
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -89,5 +134,16 @@ jobs:
         run: |
           echo "🎉 Release created successfully!"
           echo "📦 Version: ${{ github.event.inputs.version }}"
-          echo "📥 Download links will be available in the release page"
-          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ github.event.inputs.version }}"
+          echo "📦 Package Version: v${PACKAGE_VERSION}"
+          echo ""
+          echo "📥 Download Links:"
+          echo "  - Chrome/Edge/Brave/Opera: tradingview-wishlist-extension-v${PACKAGE_VERSION}.zip"
+          echo "  - Firefox: tradingview-wishlist-firefox-v${PACKAGE_VERSION}.xpi"
+          echo ""
+          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.event.inputs.version }}"
+          echo ""
+          echo "✨ What's New in v${PACKAGE_VERSION}:"
+          echo "  - Dynamic stock list from API"
+          echo "  - Smart caching (24 hours)"
+          echo "  - Automatic fallback support"
+          echo "  - Always up-to-date FnO stocks"
